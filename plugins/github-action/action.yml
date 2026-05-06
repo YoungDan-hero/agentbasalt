@@ -1,0 +1,31 @@
+name: 'AgentBasalt Test'
+description: 'Run AI agent tests with AgentBasalt'
+branding:
+  icon: 'check-circle'
+  color: 'green'
+
+inputs:
+  mode:
+    description: 'Test mode: replay or record'
+    required: false
+    default: 'replay'
+  test-files:
+    description: 'Specific test files to run (space-separated)'
+    required: false
+    default: ''
+  reporter:
+    description: 'Reporter type: terminal or html'
+    required: false
+    default: 'terminal'
+
+runs:
+  using: 'node20'
+  main: 'index.js'
+
+outputs:
+  passed:
+    description: 'Number of passed tests'
+  failed:
+    description: 'Number of failed tests'
+  total:
+    description: 'Total number of tests'

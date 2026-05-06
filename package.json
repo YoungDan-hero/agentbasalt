@@ -1,0 +1,57 @@
+{
+  "name": "agentbasalt",
+  "version": "0.1.2",
+  "description": "Test your AI agents like you test your code. Fast. Deterministic. Reproducible.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "agentbasalt": "./dist/cli/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./adapters/*": {
+      "types": "./dist/adapters/*.d.ts",
+      "import": "./dist/adapters/*.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "release": "changeset publish"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "testing",
+    "llm",
+    "openai",
+    "anthropic",
+    "mock",
+    "replay",
+    "snapshot"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@changesets/cli": "^2.27.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
