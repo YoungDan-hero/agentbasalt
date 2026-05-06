@@ -258,6 +258,32 @@ testScenario("email classification", dataset, async (input, expected) => {
 }
 ```
 
+### 9. Multi-step Agent Trace — Track complex agent flows
+
+```ts
+import { trace, expect } from "agentbasalt";
+
+const t = trace();
+
+await t.run(async () => {
+  const plan = await t.step("plan", "llm", async () => {
+    return llm.call("How to answer?");
+  });
+  const data = await t.step("search", "tool", async () => {
+    return searchAPI(plan.query);
+  });
+  await t.step("answer", "llm", async () => {
+    return llm.call(`Summarize: ${data}`);
+  });
+});
+
+expect(t).toHaveStepCount(3);
+expect(t).toHaveStepSequence(["plan", "search", "answer"]);
+expect(t).toHaveLLMCallCount(2);
+expect(t).toHaveToolCallCount(1);
+expect(t).toHaveNoErrors();
+```
+
 ### 8. Cost Tracking — Know how much you're spending
 
 ```ts
@@ -286,10 +312,12 @@ test("agent is cost-efficient", async () => {
 
 ```ts
 import { wrapOpenAI } from "agentbasalt/adapters/openai";
-const mockClient = wrapOpenAI(new OpenAI(), engine.createInterceptor());
+const handler = engine.createHandler();
+const mockClient = wrapOpenAI(new OpenAI(), handler);
 
 import { wrapAnthropic } from "agentbasalt/adapters/anthropic";
-const mockClient = wrapAnthropic(new Anthropic(), engine.createInterceptor());
+const handler = engine.createHandler();
+const mockClient = wrapAnthropic(new Anthropic(), handler);
 ```
 
 ## CI Integration

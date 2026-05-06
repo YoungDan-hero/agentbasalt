@@ -1,6 +1,6 @@
 export { test, describe, it, skip, todo, beforeAll, afterAll, beforeEach, afterEach, setDefaultTimeout } from './core/runner.js'
 export { expect, AssertionError } from './core/assertions.js'
-export { agentBasalt, AgentBasaltEngine, defineConfig } from './core/engine.js'
+export { agentBasalt, AgentBasaltEngine, defineConfig, saveAllCassettes, clearEngineRegistry } from './core/engine.js'
 export { trace, AgentTrace } from './core/trace.js'
 export { mockTool, clearMockTools, getRegisteredToolNames } from './mock/tool-mock.js'
 export { mockText, mockToolCall } from './mock/llm-mock.js'

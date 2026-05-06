@@ -1,4 +1,8 @@
+import { AsyncLocalStorage } from 'node:async_hooks'
 import type { LLMRequest, LLMResponse, AgentResult } from './types.js'
+
+/** Per-async-context current step tracking (safe for Promise.all) */
+const stepStore = new AsyncLocalStorage<TraceStep>()
 
 // ─── Trace Types ────────────────────────────────────────────────────
 
@@ -63,7 +67,6 @@ export interface TraceResult {
  */
 export class AgentTrace {
   private steps: TraceStep[] = []
-  private currentStep: TraceStep | null = null
   private runStartTime = 0
   private runEndTime = 0
   private runError?: Error
@@ -73,6 +76,7 @@ export class AgentTrace {
    */
   async run<T>(fn: () => Promise<T>): Promise<T> {
     this.steps = []
+    this.runError = undefined
     this.runStartTime = performance.now()
 
     try {
@@ -88,6 +92,9 @@ export class AgentTrace {
 
   /**
    * Record a named step in the agent flow.
+   *
+   * Safe for concurrent use (Promise.all) — uses AsyncLocalStorage
+   * to track the current step per async context.
    *
    * @param name - Step name (e.g., 'plan', 'search', 'answer')
    * @param type - Step type: 'llm', 'tool', or 'custom'
@@ -108,35 +115,35 @@ export class AgentTrace {
       children: [],
     }
 
-    // Nest under current step if we're inside one
-    const parent = this.currentStep
+    // Nest under current step if we're inside one (from AsyncLocalStorage)
+    const parent = stepStore.getStore()
     if (parent) {
       parent.children.push(step)
     } else {
       this.steps.push(step)
     }
 
-    this.currentStep = step
+    // Run fn within a new async context with this step as current
+    return stepStore.run(step, async () => {
+      try {
+        const result = await fn()
+        step.output = result
 
-    try {
-      const result = await fn()
-      step.output = result
+        // Auto-detect LLM responses
+        if (this.isLLMResponse(result)) {
+          step.response = result as LLMResponse
+          step.type = 'llm'
+        }
 
-      // Auto-detect LLM responses
-      if (this.isLLMResponse(result)) {
-        step.response = result as LLMResponse
-        step.type = 'llm'
+        return result
+      } catch (err) {
+        step.error = err instanceof Error ? err : new Error(String(err))
+        throw err
+      } finally {
+        step.endTime = performance.now()
+        step.duration = step.endTime - step.startTime
       }
-
-      return result
-    } catch (err) {
-      step.error = err instanceof Error ? err : new Error(String(err))
-      throw err
-    } finally {
-      step.endTime = performance.now()
-      step.duration = step.endTime - step.startTime
-      this.currentStep = parent
-    }
+    })
   }
 
   /**
@@ -225,7 +232,6 @@ export class AgentTrace {
   /** Reset the trace */
   reset(): void {
     this.steps = []
-    this.currentStep = null
     this.runStartTime = 0
     this.runEndTime = 0
     this.runError = undefined
@@ -233,8 +239,8 @@ export class AgentTrace {
 
   // ─── Private ────────────────────────────────────────────────────
 
-  private getCurrentStep(): TraceStep | null {
-    return this.currentStep
+  private getCurrentStep(): TraceStep | undefined {
+    return stepStore.getStore()
   }
 
   private flattenSteps(steps: TraceStep[]): TraceStep[] {

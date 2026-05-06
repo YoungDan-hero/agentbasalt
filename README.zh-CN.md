@@ -258,6 +258,32 @@ testScenario("邮件分类", dataset, async (input, expected) => {
 }
 ```
 
+### 9. 多步 Agent 追踪 — 跟踪复杂 agent 流程
+
+```ts
+import { trace, expect } from "agentbasalt";
+
+const t = trace();
+
+await t.run(async () => {
+  const plan = await t.step("plan", "llm", async () => {
+    return llm.call("How to answer?");
+  });
+  const data = await t.step("search", "tool", async () => {
+    return searchAPI(plan.query);
+  });
+  await t.step("answer", "llm", async () => {
+    return llm.call(`Summarize: ${data}`);
+  });
+});
+
+expect(t).toHaveStepCount(3);
+expect(t).toHaveStepSequence(["plan", "search", "answer"]);
+expect(t).toHaveLLMCallCount(2);
+expect(t).toHaveToolCallCount(1);
+expect(t).toHaveNoErrors();
+```
+
 ### 8. 成本追踪 — 知道花了多少钱
 
 ```ts
@@ -286,10 +312,12 @@ test("agent 成本可控", async () => {
 
 ```ts
 import { wrapOpenAI } from "agentbasalt/adapters/openai";
-const mockClient = wrapOpenAI(new OpenAI(), engine.createInterceptor());
+const handler = engine.createHandler();
+const mockClient = wrapOpenAI(new OpenAI(), handler);
 
 import { wrapAnthropic } from "agentbasalt/adapters/anthropic";
-const mockClient = wrapAnthropic(new Anthropic(), engine.createInterceptor());
+const handler = engine.createHandler();
+const mockClient = wrapAnthropic(new Anthropic(), handler);
 ```
 
 ## CI 集成

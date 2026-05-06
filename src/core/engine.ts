@@ -11,6 +11,25 @@ import { Replayer } from '../mock/replayer.js'
 import { Recorder } from '../mock/recorder.js'
 import { Matcher } from '../mock/matcher.js'
 
+// ─── Global engine registry (for auto-saving cassettes in record mode) ──
+
+const activeEngines: AgentBasaltEngine[] = []
+
+/** Save all recorded cassettes. Called by the runner after tests complete. */
+export async function saveAllCassettes(): Promise<string[]> {
+  const paths: string[] = []
+  for (const engine of activeEngines) {
+    const path = await engine.saveCassettes()
+    if (path) paths.push(path)
+  }
+  return paths
+}
+
+/** Clear the engine registry (called between test runs) */
+export function clearEngineRegistry(): void {
+  activeEngines.length = 0
+}
+
 export class AgentBasaltEngine {
   private mode: AgentBasaltMode
   private cassetteDir: string
@@ -32,6 +51,7 @@ export class AgentBasaltEngine {
     } else if (this.mode === 'record') {
       this.recorder = new Recorder(this.cassetteDir, config.sanitize)
       this.recorder.start(this.cassetteName)
+      activeEngines.push(this)
     }
   }
 

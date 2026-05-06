@@ -1,5 +1,6 @@
 import type { RunnerConfig, RunResult, SuiteResult, TestResult, TestDefinition, Reporter } from './types.js'
 import { TerminalReporter } from './reporter.js'
+import { saveAllCassettes, clearEngineRegistry } from './engine.js'
 import { readdir } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 
@@ -277,5 +278,18 @@ export async function runTests(config: RunnerConfig): Promise<RunResult> {
   }
 
   reporter.onRunEnd(runResult)
+
+  // Auto-save cassettes in record mode
+  if (config.mode === 'record') {
+    const savedPaths = await saveAllCassettes()
+    if (savedPaths.length > 0) {
+      console.log(`\n📼 Saved ${savedPaths.length} cassette(s):`)
+      for (const p of savedPaths) {
+        console.log(`   ${p}`)
+      }
+    }
+    clearEngineRegistry()
+  }
+
   return runResult
 }

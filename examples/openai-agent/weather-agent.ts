@@ -16,8 +16,8 @@ interface WeatherResult {
 
 export function createWeatherAgent(engine: AgentBasaltEngine) {
   const client = new OpenAI()
-  const interceptor = engine.createInterceptor()
-  const wrappedClient = wrapOpenAI(client, interceptor)
+  const handler = engine.createHandler()
+  const wrappedClient = wrapOpenAI(client, handler)
 
   return {
     async run(query: string): Promise<WeatherResult> {
