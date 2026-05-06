@@ -64,10 +64,10 @@ describe('Matcher', () => {
     it('finds contains match', () => {
       const m = new Matcher()
       const interactions = [
-        { request: req('what is the weather in Tokyo') },
+        { request: req('weather in Tokyo') },
       ]
 
-      const result = m.findBestMatch(req('tell me about the weather in Tokyo today'), interactions, 'contains')
+      const result = m.findBestMatch(req('what is the weather in Tokyo today'), interactions, 'contains')
       expect(result).not.toBeNull()
     })
 
