@@ -4,7 +4,6 @@ import { parseArgs } from 'node:util'
 import { runTests } from '../core/runner.js'
 import { initProject } from './init.js'
 import { recordTests } from './record.js'
-import { updateSnapshots } from './update.js'
 
 const { values, positionals } = parseArgs({
   args: process.argv.slice(2),
@@ -12,8 +11,6 @@ const { values, positionals } = parseArgs({
     help: { type: 'boolean', short: 'h' },
     record: { type: 'boolean', short: 'r' },
     replay: { type: 'boolean' },
-    update: { type: 'boolean', short: 'u' },
-    reporter: { type: 'string' },
     watch: { type: 'boolean', short: 'w' },
   },
   allowPositionals: true,
@@ -36,18 +33,13 @@ async function main() {
       case 'test':
         await runTests({
           mode: values.record ? 'record' : 'replay',
-          reporter: (values.reporter as string) ?? 'terminal',
+          reporter: 'terminal',
           watch: values.watch as boolean,
           files: positionals.slice(1),
         })
         break
       case 'record':
         await recordTests({
-          files: positionals.slice(1),
-        })
-        break
-      case 'update':
-        await updateSnapshots({
           files: positionals.slice(1),
         })
         break
@@ -73,13 +65,10 @@ Commands:
   init                 Initialize agentbasalt in your project
   test [files...]      Run agent tests (default: replay mode)
   record [files...]    Record new cassettes from real API calls
-  update [files...]    Update existing snapshots
 
 Options:
   -r, --record         Run in record mode (calls real APIs)
   --replay             Run in replay mode (default, uses cassettes)
-  -u, --update         Update snapshots
-  --reporter <type>    Reporter: terminal | html (default: terminal)
   -w, --watch          Watch mode
   -h, --help           Show this help
 `)

@@ -1,0 +1,32 @@
+{
+  "id": "1778115486181-0zibf3",
+  "name": "minimal",
+  "recordedAt": "2026-05-07T00:58:06.181Z",
+  "agentBasaltVersion": "0.1.0",
+  "interactions": [
+    {
+      "request": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "hello"
+          }
+        ],
+        "model": "gpt-4o"
+      },
+      "response": {
+        "content": "hi",
+        "usage": {
+          "promptTokens": 10,
+          "completionTokens": 5,
+          "totalTokens": 15
+        },
+        "model": "gpt-4o",
+        "finishReason": "stop",
+        "raw": null
+      },
+      "timestamp": 1778115486181,
+      "duration": 0.008874999999989086
+    }
+  ]
+}

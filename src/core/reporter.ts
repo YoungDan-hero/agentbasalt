@@ -85,17 +85,3 @@ export class TerminalReporter implements Reporter {
     return `${(ms / 1000).toFixed(2)}s`
   }
 }
-
-// ─── HTML Reporter (placeholder) ────────────────────────────────────
-
-export class HtmlReporter implements Reporter {
-  onSuiteStart(_name: string): void {}
-  onSuiteEnd(_result: SuiteResult): void {}
-  onTestStart(_name: string): void {}
-  onTestEnd(_result: TestResult): void {}
-
-  onRunEnd(_result: RunResult): void {
-    // TODO: generate HTML report
-    console.log('HTML report generation not yet implemented')
-  }
-}

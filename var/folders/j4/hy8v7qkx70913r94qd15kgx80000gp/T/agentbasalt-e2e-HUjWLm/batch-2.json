@@ -1,0 +1,32 @@
+{
+  "id": "1778115486187-pw3bp7",
+  "name": "batch-2",
+  "recordedAt": "2026-05-07T00:58:06.187Z",
+  "agentBasaltVersion": "0.1.0",
+  "interactions": [
+    {
+      "request": {
+        "messages": [
+          {
+            "role": "user",
+            "content": "q2"
+          }
+        ],
+        "model": "gpt-4o"
+      },
+      "response": {
+        "content": "a2",
+        "usage": {
+          "promptTokens": 10,
+          "completionTokens": 5,
+          "totalTokens": 15
+        },
+        "model": "gpt-4o",
+        "finishReason": "stop",
+        "raw": null
+      },
+      "timestamp": 1778115486186,
+      "duration": 0.012124999999969077
+    }
+  ]
+}
