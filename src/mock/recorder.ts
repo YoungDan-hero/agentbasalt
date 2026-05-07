@@ -1,5 +1,5 @@
 import { writeFile, mkdir } from 'node:fs/promises'
-import { join } from 'node:path'
+import { join, isAbsolute } from 'node:path'
 import type { LLMRequest, LLMResponse, Cassette, Interaction, SanitizeConfig } from '../core/types.js'
 
 export class Recorder {
@@ -38,11 +38,11 @@ export class Recorder {
       id: this.generateId(),
       name: this.cassetteName,
       recordedAt: new Date().toISOString(),
-      agentBasaltVersion: '0.1.0',
+      agentBasaltVersion: '0.1.4',
       interactions: this.interactions,
     }
 
-    const dir = join(process.cwd(), this.cassetteDir)
+    const dir = isAbsolute(this.cassetteDir) ? this.cassetteDir : join(process.cwd(), this.cassetteDir)
     await mkdir(dir, { recursive: true })
 
     const filePath = join(dir, `${this.cassetteName}.json`)

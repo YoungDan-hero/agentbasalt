@@ -1,5 +1,5 @@
 import { readFile, readdir, access } from 'node:fs/promises'
-import { join } from 'node:path'
+import { join, isAbsolute } from 'node:path'
 import type { LLMRequest, LLMResponse, Cassette, MatchStrategy } from '../core/types.js'
 import { Matcher } from './matcher.js'
 
@@ -9,7 +9,7 @@ export class Replayer {
   private cassetteDir: string
 
   constructor(cassetteDir: string, matchStrategy: MatchStrategy = 'contains') {
-    this.cassetteDir = join(process.cwd(), cassetteDir)
+    this.cassetteDir = isAbsolute(cassetteDir) ? cassetteDir : join(process.cwd(), cassetteDir)
     this.matcher = new Matcher(matchStrategy)
   }
 
