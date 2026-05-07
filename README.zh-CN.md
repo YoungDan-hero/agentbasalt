@@ -258,6 +258,23 @@ testScenario("邮件分类", dataset, async (input, expected) => {
 }
 ```
 
+### 8. 成本追踪 — 知道花了多少钱
+
+```ts
+import { costTracker, expect } from "agentbasalt";
+
+test("agent 成本可控", async () => {
+  const tracker = costTracker();
+  await tracker.track(myAgent.run("总结这篇文章"));
+
+  expect(tracker).toHaveCostLessThan(0.05); // 最多 $0.05
+  expect(tracker).toHaveTokenCountLessThan(2000); // 最多 2000 tokens
+
+  console.log(tracker.breakdown());
+  // [{ model: 'gpt-4o', calls: 3, cost: 0.011 }]
+});
+```
+
 ### 9. 多步 Agent 追踪 — 跟踪复杂 agent 流程
 
 ```ts
@@ -282,23 +299,6 @@ expect(t).toHaveStepSequence(["plan", "search", "answer"]);
 expect(t).toHaveLLMCallCount(2);
 expect(t).toHaveToolCallCount(1);
 expect(t).toHaveNoErrors();
-```
-
-### 8. 成本追踪 — 知道花了多少钱
-
-```ts
-import { costTracker, expect } from "agentbasalt";
-
-test("agent 成本可控", async () => {
-  const tracker = costTracker();
-  await tracker.track(myAgent.run("总结这篇文章"));
-
-  expect(tracker).toHaveCostLessThan(0.05); // 最多 $0.05
-  expect(tracker).toHaveTokenCountLessThan(2000); // 最多 2000 tokens
-
-  console.log(tracker.breakdown());
-  // [{ model: 'gpt-4o', calls: 3, cost: 0.011 }]
-});
 ```
 
 ## 适配器

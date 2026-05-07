@@ -258,6 +258,23 @@ testScenario("email classification", dataset, async (input, expected) => {
 }
 ```
 
+### 8. Cost Tracking — Know how much you're spending
+
+```ts
+import { costTracker, expect } from "agentbasalt";
+
+test("agent is cost-efficient", async () => {
+  const tracker = costTracker();
+  await tracker.track(myAgent.run("summarize this"));
+
+  expect(tracker).toHaveCostLessThan(0.05); // max $0.05
+  expect(tracker).toHaveTokenCountLessThan(2000); // max 2000 tokens
+
+  console.log(tracker.breakdown());
+  // [{ model: 'gpt-4o', calls: 3, cost: 0.011 }]
+});
+```
+
 ### 9. Multi-step Agent Trace — Track complex agent flows
 
 ```ts
@@ -282,23 +299,6 @@ expect(t).toHaveStepSequence(["plan", "search", "answer"]);
 expect(t).toHaveLLMCallCount(2);
 expect(t).toHaveToolCallCount(1);
 expect(t).toHaveNoErrors();
-```
-
-### 8. Cost Tracking — Know how much you're spending
-
-```ts
-import { costTracker, expect } from "agentbasalt";
-
-test("agent is cost-efficient", async () => {
-  const tracker = costTracker();
-  await tracker.track(myAgent.run("summarize this"));
-
-  expect(tracker).toHaveCostLessThan(0.05); // max $0.05
-  expect(tracker).toHaveTokenCountLessThan(2000); // max 2000 tokens
-
-  console.log(tracker.breakdown());
-  // [{ model: 'gpt-4o', calls: 3, cost: 0.011 }]
-});
 ```
 
 ## Adapters

@@ -2,7 +2,6 @@ import type { Reporter, SuiteResult, TestResult, RunResult } from './types.js'
 
 const RESET = '\x1b[0m'
 const BOLD = '\x1b[1m'
-const DIM = '\x1b[2m'
 const RED = '\x1b[31m'
 const GREEN = '\x1b[32m'
 const YELLOW = '\x1b[33m'
@@ -90,15 +89,12 @@ export class TerminalReporter implements Reporter {
 // ─── HTML Reporter (placeholder) ────────────────────────────────────
 
 export class HtmlReporter implements Reporter {
-  private results: RunResult | null = null
-
   onSuiteStart(_name: string): void {}
   onSuiteEnd(_result: SuiteResult): void {}
   onTestStart(_name: string): void {}
   onTestEnd(_result: TestResult): void {}
 
-  onRunEnd(result: RunResult): void {
-    this.results = result
+  onRunEnd(_result: RunResult): void {
     // TODO: generate HTML report
     console.log('HTML report generation not yet implemented')
   }
