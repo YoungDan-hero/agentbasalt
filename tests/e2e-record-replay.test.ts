@@ -61,12 +61,14 @@ describe('E2E: record → save → replay', () => {
     // Save cassettes to disk
     const savedPath = await recordEngine.saveCassettes()
     expect(savedPath).toBeTruthy()
+    expect(savedPath!.startsWith(tmpDir)).toBe(true)
 
     // Verify the file exists
     const { readFile } = await import('node:fs/promises')
     const fileContent = await readFile(savedPath!, 'utf-8')
     const cassette = JSON.parse(fileContent)
     expect(cassette.name).toBe('e2e-test')
+    expect(cassette.agentBasaltVersion).toBe('0.1.4')
     expect(cassette.interactions).toHaveLength(2)
     expect(cassette.interactions[0].response.content).toBe('Sunny, 25°C')
     expect(cassette.interactions[1].response.content).toBe('It is 3pm')
