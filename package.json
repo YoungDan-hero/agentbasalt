@@ -1,6 +1,6 @@
 {
   "name": "agentbasalt",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Test your AI agents like you test your code. Fast. Deterministic. Reproducible.",
   "type": "module",
   "main": "./dist/index.js",

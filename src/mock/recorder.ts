@@ -1,10 +1,16 @@
-import { writeFile, mkdir } from 'node:fs/promises'
-import { join, isAbsolute } from 'node:path'
-import type { LLMRequest, LLMResponse, Cassette, Interaction, SanitizeConfig } from '../core/types.js'
+import { writeFile, mkdir } from "node:fs/promises";
+import { join, isAbsolute } from "node:path";
+import type {
+  LLMRequest,
+  LLMResponse,
+  Cassette,
+  Interaction,
+  SanitizeConfig,
+} from "../core/types.js";
 
 export class Recorder {
-  private interactions: Interaction[] = []
-  private cassetteName: string | null = null
+  private interactions: Interaction[] = [];
+  private cassetteName: string | null = null;
 
   constructor(
     private cassetteDir: string,
@@ -13,8 +19,8 @@ export class Recorder {
 
   /** Start recording a new cassette */
   start(name: string): void {
-    this.cassetteName = name
-    this.interactions = []
+    this.cassetteName = name;
+    this.interactions = [];
   }
 
   /** Record an API request/response pair */
@@ -24,36 +30,38 @@ export class Recorder {
       response: this.sanitizeResponse(response),
       timestamp: Date.now(),
       duration,
-    }
-    this.interactions.push(interaction)
+    };
+    this.interactions.push(interaction);
   }
 
   /** Save the recorded cassette to disk */
   async save(): Promise<string> {
     if (!this.cassetteName) {
-      throw new Error('No cassette name set. Call recorder.start(name) first.')
+      throw new Error("No cassette name set. Call recorder.start(name) first.");
     }
 
     const cassette: Cassette = {
       id: this.generateId(),
       name: this.cassetteName,
       recordedAt: new Date().toISOString(),
-      agentBasaltVersion: '0.1.4',
+      agentBasaltVersion: "0.1.5",
       interactions: this.interactions,
-    }
+    };
 
-    const dir = isAbsolute(this.cassetteDir) ? this.cassetteDir : join(process.cwd(), this.cassetteDir)
-    await mkdir(dir, { recursive: true })
+    const dir = isAbsolute(this.cassetteDir)
+      ? this.cassetteDir
+      : join(process.cwd(), this.cassetteDir);
+    await mkdir(dir, { recursive: true });
 
-    const filePath = join(dir, `${this.cassetteName}.json`)
-    await writeFile(filePath, JSON.stringify(cassette, null, 2), 'utf-8')
+    const filePath = join(dir, `${this.cassetteName}.json`);
+    await writeFile(filePath, JSON.stringify(cassette, null, 2), "utf-8");
 
-    return filePath
+    return filePath;
   }
 
   /** Get the number of recorded interactions */
   get count(): number {
-    return this.interactions.length
+    return this.interactions.length;
   }
 
   // ─── Sanitization ───────────────────────────────────────────────
@@ -65,7 +73,7 @@ export class Recorder {
         ...m,
         content: this.sanitizeText(m.content),
       })),
-    }
+    };
   }
 
   private sanitizeResponse(response: LLMResponse): LLMResponse {
@@ -73,37 +81,37 @@ export class Recorder {
       ...response,
       content: this.sanitizeText(response.content),
       raw: null, // Don't store raw response (may contain sensitive data)
-    }
+    };
   }
 
   private sanitizeText(text: string): string {
-    if (!this.sanitizeConfig) return text
+    if (!this.sanitizeConfig) return text;
 
-    let result = text
+    let result = text;
 
     if (this.sanitizeConfig.maskApiKeys) {
       // Mask common API key patterns
       result = result.replace(
         /(?:sk-|key-|token-|bearer\s+)[a-zA-Z0-9_-]{20,}/gi,
-        '[MASKED_API_KEY]',
-      )
+        "[MASKED_API_KEY]",
+      );
     }
 
     if (this.sanitizeConfig.maskEmails) {
       result = result.replace(
         /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
-        '[MASKED_EMAIL]',
-      )
+        "[MASKED_EMAIL]",
+      );
     }
 
     for (const sanitizer of this.sanitizeConfig.customSanitizers ?? []) {
-      result = sanitizer(result)
+      result = sanitizer(result);
     }
 
-    return result
+    return result;
   }
 
   private generateId(): string {
-    return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   }
 }
